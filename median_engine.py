@@ -44,31 +44,34 @@ fig = plt.gcf()
 first = None
 second = None
 
-indices = numpy.arange(0.0, 25.0)
+step = 1000;
+
+indices = numpy.arange(0.0, 1000.0)
 values_sort = [0]
 values_numpy = [0]
 values_stat = [0]
+count = 10
 for i in indices:
     if i == 0.0:
         continue
-    count = 2 ** i
     lst = generate_list_of_randoms(count)
     time_before = time.time()
     result_sort = median_with_sort(lst)
     time_after = time.time()
-    values_sort.append(10 * (time_after - time_before))
+    values_sort.append(1 * (time_after - time_before))
     time_before = time.time()
     result_numpy = median_numpy(lst)
     time_after = time.time()
-    values_numpy.append(10 * (time_after - time_before))
+    values_numpy.append(1 * (time_after - time_before))
     time_before = time.time()
     result_stat = median_stat(lst)
     time_after = time.time()
-    values_stat.append(10 * (time_after - time_before))
-    if (result_sort != result_numpy or result_sort != result_stat):
+    values_stat.append(1 * (time_after - time_before))
+    if result_sort != result_numpy or result_sort != result_stat:
         print result_sort
         print result_numpy
         print result_stat
+    count += 1000
 
 plt.plot(indices, values_sort, 'r--')
 plt.plot(indices, values_numpy, 'g--')
