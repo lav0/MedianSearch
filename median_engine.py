@@ -15,6 +15,51 @@ def median_with_sort(lst):
     return sorted_list[middle]
 
 
+def select_ahu(k, lst):
+    if len(lst) is 1:
+        return lst[0]
+    a = lst[random.randrange(0, len(lst))]
+    set1 = [t for t in lst if t < a]
+    set2 = [t for t in lst if t == a]
+    set3 = [t for t in lst if t > a]
+    if len(set1) >= k:
+        return select_ahu(k, set1)
+    elif len(set1) + len(set2) >= k:
+        return a
+    return select_ahu(k - len(set1) - len(set2), set3)
+
+def less(first, second, with_equal):
+    if with_equal:
+        return first <= second
+    return first < second
+
+@time_measure_decorator
+def median_ahu_method(lst):
+    l = len(lst)
+    if l % 2 == 1:
+        k = (l+1) / 2
+        even = False
+    else:
+        k = l / 2
+        even = True
+    med = select_ahu(k, lst)
+    if even:
+        clst = lst
+        count = 0
+        first_loop = True
+        while count < k:
+            for c in clst:
+                if count == k:
+                    break
+                if less(c, med, not first_loop):
+                    count += 1
+                    clst.remove(c)
+            first_loop = False
+
+        med = (med + min(clst)) / 2
+    return med
+
+
 @time_measure_decorator
 def median_numpy(lst):
     return numpy.median(numpy.array(lst))
@@ -30,26 +75,20 @@ def generate_list_of_randoms(count):
     i = 0
     while i != count:
         ret.append(random.uniform(-1000, 1000))
-        i = i + 1
+        i += 1
     return ret
 
 
 
+
 fig = plt.gcf()
-#fig.add_subplot(111, aspect='equal')
+step = 1001;
 
-#line = plt.Line2D((.1, .9), (.1, .9), marker='o', color='r')
-
-#lst = generate_list_of_randoms(10 ** 7)
-first = None
-second = None
-
-step = 1000;
-
-indices = numpy.arange(0.0, 1000.0)
+indices = numpy.arange(0.0, 50.0)
 values_sort = [0]
 values_numpy = [0]
 values_stat = [0]
+values_ahu = [0]
 count = 10
 for i in indices:
     if i == 0.0:
@@ -67,15 +106,21 @@ for i in indices:
     result_stat = median_stat(lst)
     time_after = time.time()
     values_stat.append(1 * (time_after - time_before))
-    if result_sort != result_numpy or result_sort != result_stat:
+    time_before = time.time()
+    result_ahu = median_ahu_method(lst)
+    time_after = time.time()
+    values_ahu.append(1 * (time_after - time_before))
+    if result_sort != result_numpy or result_sort != result_stat or result_sort != result_ahu :
+        raise exception
         print result_sort
         print result_numpy
         print result_stat
-    count += 1000
+    count += step
 
 plt.plot(indices, values_sort, 'r--')
 plt.plot(indices, values_numpy, 'g--')
 plt.plot(indices, values_stat, 'b--')
+plt.plot(indices, values_ahu, 'm--')
 
 # print median_with_sort(lst)
 # print median_numpy(lst)
